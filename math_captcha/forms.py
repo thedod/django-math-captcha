@@ -1,4 +1,6 @@
 from django import forms
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language
 
 from fields import MathField
 from util import encode, decode
@@ -26,15 +28,15 @@ def math_clean(form):
         assert len(test_secret) == 40 and question
     except (TypeError, AssertionError):
         # problem decoding, junky data
-        raise forms.ValidationError('Invalid token')
+        raise forms.ValidationError(_(u'Invalid token'))
     except KeyError:
         return
 
     if encode(question) != form.cleaned_data['math_captcha_question']:
         # security problem, hack attempt
-        raise forms.ValidationError('Invalid token')
+        raise forms.ValidationError(_(u'Invalid token'))
     if eval(question) != value:
-        raise forms.ValidationError('Wrong answer, try again')
+        raise forms.ValidationError(_(u'Wrong answer, try again'))
 
 
 class MathCaptchaModelForm(forms.ModelForm):
@@ -50,7 +52,7 @@ class MathCaptchaModelForm(forms.ModelForm):
                 model = MyModel
 
     """
-    math_captcha_field = MathField(label=settings.QUESTION)
+    math_captcha_field = MathField(label=settings.I18N_QUESTIONS.get(get_language(),settings.QUESTION))
     math_captcha_question = forms.fields.CharField(widget=NullWidget())
 
     def clean(self):
@@ -70,7 +72,7 @@ class MathCaptchaForm(forms.Form):
 
     """
     math_captcha_question = forms.fields.CharField(widget=NullWidget())
-    math_captcha_field = MathField(label=settings.QUESTION)
+    math_captcha_field = MathField(label=settings.I18N_QUESTIONS.get(get_language(),settings.QUESTION))
 
     def clean_math_captcha_field(self):
         math_clean(self)
