@@ -1,6 +1,5 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import get_language
 
 from fields import MathField
 from util import encode, decode
@@ -38,7 +37,6 @@ def math_clean(form):
     if eval(question) != value:
         raise forms.ValidationError(_(u'Wrong answer, try again'))
 
-
 class MathCaptchaModelForm(forms.ModelForm):
     """
     Subclass of ``django.forms.ModelForm`` which contains the math fields
@@ -52,7 +50,7 @@ class MathCaptchaModelForm(forms.ModelForm):
                 model = MyModel
 
     """
-    math_captcha_field = MathField(label=settings.I18N_QUESTIONS.get(get_language(),settings.QUESTION))
+    math_captcha_field = MathField(label=_(u'Are you a person?'))
     math_captcha_question = forms.fields.CharField(widget=NullWidget())
 
     def clean(self):
@@ -72,7 +70,7 @@ class MathCaptchaForm(forms.Form):
 
     """
     math_captcha_question = forms.fields.CharField(widget=NullWidget())
-    math_captcha_field = MathField(label=settings.I18N_QUESTIONS.get(get_language(),settings.QUESTION))
+    math_captcha_field = MathField(label=_(u'Are you a person?'))
 
     def clean_math_captcha_field(self):
         math_clean(self)
